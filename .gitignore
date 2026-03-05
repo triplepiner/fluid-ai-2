@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.eggs/
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Data (too large for git — download or generate locally)
+data/raw/
+data/normalized/
+data/synced/
+data/stabilized/
+data/undistorted/
+data/flow/
+data/depth/
+data/colmap/
+
+# Outputs
+outputs/checkpoints/*.pt
+outputs/renders/
+wandb/
+
+# Environment
+.env
+*.swp
+*.swo
+*~
+.DS_Store
+.vscode/
+.idea/
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/

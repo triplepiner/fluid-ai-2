@@ -1,0 +1,26 @@
+pinn:
+  network:
+    activation: "siren"
+    hidden_dim: 64
+    num_layers: 4
+  physics:
+    viscosity: 1.0e-3
+    gravity: [0.0, -9.81, 0.0]
+  learning_rate: 1.0e-3
+  num_collocation: 500
+  loss_weights:
+    momentum: 1.0
+    continuity: 1.0
+    boundary: 1.0
+  domain:
+    x_range: [-1.0, 1.0]
+    y_range: [-1.0, 1.0]
+    z_range: [-1.0, 1.0]
+    t_range: [0.0, 1.0]
+
+training:
+  pinn:
+    epochs: 500
+    batch_size: 100       # num_boundary points per BC
+    save_interval: 250
+    log_interval: 100

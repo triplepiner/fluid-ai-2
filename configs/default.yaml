@@ -1,0 +1,112 @@
+data:
+  root_dir: "./data"
+  output_dir: "./outputs"
+  scene_name: "fluid_scene"
+  resolution:
+    width: 512
+    height: 512
+  fps: 30
+  num_cameras: 4
+  start_frame: 0
+  end_frame: -1  # -1 means use all frames
+
+preprocessing:
+  colmap:
+    quality: "medium"  # low / medium / high / extreme
+    camera_model: "OPENCV"
+    single_camera: false
+    use_gpu: true
+  flow:
+    model: "raft-things"
+    num_iters: 20
+    backward: true  # compute backward flow for consistency check
+  depth:
+    model: "depth-anything-v2-base"
+    max_depth: 10.0
+    align_to_colmap: true  # scale-shift align monocular depth to sparse COLMAP points
+
+gaussian:
+  num_gaussians: 100000
+  sh_degree: 3
+  opacity_init: 0.1
+  scale_init: 0.001
+  learning_rate:
+    position: 1.6e-4
+    features: 2.5e-3
+    opacity: 5.0e-2
+    scaling: 5.0e-3
+    rotation: 1.0e-3
+  position_lr_decay_mult: 0.01  # final lr = init_lr * decay_mult
+  densify:
+    grad_threshold: 0.0002
+    interval: 100
+    start_iter: 500
+    stop_iter: 15000
+    max_gaussians: 500000
+  deformation:
+    enabled: true
+    learning_rate: 1.0e-3
+    mlp_width: 128
+    mlp_depth: 6
+    fourier_features: 64
+  loss_weights:
+    photo: 1.0
+    depth: 0.1
+    flow: 0.05
+    temporal_smooth: 0.01
+    ssim: 0.2
+
+pinn:
+  network:
+    hidden_dim: 256
+    num_layers: 8
+    activation: "siren"  # siren / tanh / swish
+    skip_connections: [4]  # layers with skip connections
+  encoding:
+    type: "fourier"  # fourier / hashgrid / positional
+    scale: 2.0
+    num_frequencies: 64
+  physics:
+    viscosity: 1.0e-3
+    density: 1000.0  # kg/m^3 (water)
+    gravity: [0.0, -9.81, 0.0]
+  learning_rate: 1.0e-4
+  scheduler:
+    type: "cosine"
+    warmup_steps: 1000
+    min_lr: 1.0e-6
+  num_collocation: 10000
+  loss_weights:
+    momentum: 1.0      # Navier-Stokes momentum residual
+    continuity: 1.0     # divergence-free constraint
+    boundary: 0.1       # boundary conditions
+    data: 1.0           # match observed velocity from Gaussians
+  domain:
+    x_range: [-1.0, 1.0]
+    y_range: [-1.0, 1.0]
+    z_range: [-1.0, 1.0]
+    t_range: [0.0, 1.0]
+
+training:
+  gaussian:
+    epochs: 30000
+    batch_size: 1  # one view per iteration
+    save_interval: 5000
+    eval_interval: 1000
+    log_interval: 100
+  pinn:
+    epochs: 50000
+    batch_size: 4096  # collocation points per batch
+    save_interval: 5000
+    eval_interval: 1000
+    log_interval: 100
+  seed: 42
+  mixed_precision: true
+  gradient_clip: 1.0
+  num_workers: 4
+
+logging:
+  use_wandb: false
+  wandb_project: "fluid-recon"
+  use_tensorboard: true
+  tensorboard_dir: "./outputs/tb_logs"

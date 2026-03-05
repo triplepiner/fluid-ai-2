@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluid-recon"
+version = "0.1.0"
+description = "Physics-Integrated Neural Fluid Reconstruction and Novel View Synthesis"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Makar Ulesov" },
+    { name = "Ivan Kanev" },
+    { name = "Delyan Hristov" },
+    { name = "Stoyan Ganchev" },
+]
+
+dependencies = [
+    # Core
+    "torch>=2.2,<3.0",
+    "numpy>=2.0,<3.0",
+    "scipy>=1.11,<2.0",
+    "einops>=0.7,<1.0",
+    "tqdm>=4.66,<5.0",
+    "omegaconf>=2.3,<3.0",
+    "pyyaml>=6.0,<7.0",
+    "imageio>=2.31,<3.0",
+    "imageio-ffmpeg>=0.4,<1.0",
+
+    # Vision
+    "opencv-python-headless>=4.8,<5.0",
+    "kornia>=0.7,<1.0",
+    "Pillow>=10.0,<12.0",
+    "timm>=0.9,<2.0",
+
+    # 3D
+    "plyfile>=1.0,<2.0",
+
+    # ML tracking
+    "wandb>=0.16,<1.0",
+    "tensorboard>=2.14,<3.0",
+
+    # Depth estimation
+    "transformers>=4.36,<6.0",
+    "safetensors>=0.4,<1.0",
+]
+
+[project.optional-dependencies]
+cuda = [
+    "gsplat>=1.0",
+    "open3d>=0.17",
+]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "flake8>=6.0",
+]
+
+[project.scripts]
+fluid-preprocess = "preprocessing.run_pipeline:main"
+fluid-train-gaussian = "gaussian_splatting.train:main"
+fluid-train-pinn = "pinn.train:main"
+fluid-predict = "integration.forward_predict:main"
+fluid-render = "integration.novel_view:main"
+
+[tool.setuptools.packages.find]
+include = [
+    "preprocessing*",
+    "gaussian_splatting*",
+    "pinn*",
+    "integration*",
+    "scripts*",
+]
+exclude = [
+    "tests*",
+    "data*",
+    "outputs*",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
